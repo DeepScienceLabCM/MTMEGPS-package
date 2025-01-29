@@ -1,0 +1,10 @@
+Package: MTMEGPS
+Type: Package
+Title: MultiTrait and MultiEnvironment models for Genomic and Phenomic Prediction
+Version: 0.1.0
+Author: Who wrote it
+Maintainer: Carlos Maldonado <carlos.maldonado@umayor.cl>
+Description: MultiTrait-UniEnvironment and MultiTrait-MultiEnvironment models for Genomic and Phenomic Prediction based on Deep Learning.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
