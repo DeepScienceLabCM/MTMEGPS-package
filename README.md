@@ -56,12 +56,6 @@ Installs Python dependencies required by TensorFlow and keras3.
 
 ---
 
-## License
-
-MIT License.
-
----
-
 ## Contact
 
 For issues or suggestions, please open an issue on GitHub.
