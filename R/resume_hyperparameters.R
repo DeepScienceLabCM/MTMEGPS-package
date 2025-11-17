@@ -15,37 +15,44 @@ resume_hyperparameters <- function(results,reps,MT=NULL){
     geom_text(aes(label=groups), nudge_x = 0.15, nudge_y = y_h, size = 5, color = "steelblue4")
   }
 
-  anova_split <- function(results,reps,MT=NULL){
-    x=seq_len(dim(results)[1])
-    y=x[dim(results)[1]%%x == 0]
-    if(is.null(MT)){
-      z=y[y%%reps==0 & y<200]
-      max=reps*10
-    }else{
-      z=y[y%%(reps*MT)==0 & y<200]
-      max=reps*MT*10
+  anova_split <- function(results, reps, MT = NULL, max_depth = 5, depth = 1) {
+    if (depth > max_depth) {
+      return(results)
     }
-    z=z[length(z)]
-    y=1
-    r_anova=NULL
-    for(x in 1:(dim(results)[1]/z)){
-      anova=aov(result~concatenate,results[y:(y+z-1),])
-      groups=HSD.test(anova,"concatenate")
-      r_anova=rbind(r_anova,groups$groups[1:10,])
-      y=y+z
+    x  <- seq_len(nrow(results))
+    y  <- x[nrow(results) %% x == 0]
+
+    if (is.null(MT)) {
+      z <- y[y %% reps == 0 & y < 200]
+      max_rows <- reps * 10
+    }else{
+      z <- y[y %% (reps * MT) == 0 & y < 200]
+      max_rows <- reps * MT * 10
     }
 
-    r_result=results[results$concatenate %in% rownames(r_anova),]
-    if(dim(r_result)[1]>max){
-      if(is.null(MT)){
-        r_result=anova_split(r_result,reps)
-      }else{
-        r_result=anova_split(r_result,reps,MT)
-      }
-      return(r_result)
-    }else{
+    z <- z[length(z)]
+    index <- 1
+    r_anova <- NULL
+
+    for (i in 1:(nrow(results) / z)) {
+      block <- results[index:(index + z - 1), ]
+      fit <- aov(result ~ concatenate, data = block)
+      groups <- HSD.test(fit, "concatenate")
+      top10 <- groups$groups[1:min(10, nrow(groups$groups)), ]
+      r_anova <- rbind(r_anova, top10)
+      index <- index + z
+    }
+
+    r_result <- results[results$concatenate %in% rownames(r_anova), ]
+    
+    if (nrow(r_result) <= max_rows) {
       return(r_result)
     }
+    if (nrow(r_result) == nrow(results)) {
+      return(r_result)
+    }
+
+    anova_split(r_result, reps, MT, max_depth, depth + 1)
   }
 
   results=as.data.frame(results)

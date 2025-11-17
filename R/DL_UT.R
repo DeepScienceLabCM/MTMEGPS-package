@@ -1,5 +1,5 @@
 #' @export
-DL_UT <- function(x,y,hyp,xts=NULL,test=NULL){
+DL_UT <- function(xtr,xts=NULL,ytr,yts=NULL,hyp,test=NULL){
   options(warn=-1)
   library(tensorflow)
   library(keras3)
@@ -42,18 +42,14 @@ DL_UT <- function(x,y,hyp,xts=NULL,test=NULL){
       batch_size <- params$batch_size
       repetitions <- params$repetitions
 
-      units <- as.integer(round(ncol(x) * 0.7))
+      units <- as.integer(round(ncol(xtr) * 0.7))
 
-      Post_trn <- sample(1:nrow(x), round(nrow(x) * 0.8))
-      X_tr <- x[Post_trn, ]
-      X_ts <- x[-Post_trn, ]
+      Mean_trn <- mean(ytr)
+      SD_trn <- sd(ytr)
+      y_tr <- (ytr - Mean_trn) / SD_trn
+      y_ts <- (yts - Mean_trn) / SD_trn
 
-      Mean_trn <- mean(y[Post_trn])
-      SD_trn <- sd(y[Post_trn])
-      y_tr <- (y[Post_trn] - Mean_trn) / SD_trn
-      y_ts <- (y[-Post_trn] - Mean_trn) / SD_trn
-
-      input <- layer_input(shape = ncol(X_tr))
+      input <- layer_input(shape = ncol(x_tr))
 
       base_model <- input %>%
         layer_dense(units = units, activation = activation) %>%
@@ -77,11 +73,11 @@ DL_UT <- function(x,y,hyp,xts=NULL,test=NULL){
         loss_weights = as.numeric(loss_weights)
       )
 
-      X_tr <- tensorflow::tf$cast(X_tr, dtype = tensorflow::tf$float32)
+      x_tr <- tensorflow::tf$cast(x_tr, dtype = tensorflow::tf$float32)
       y_tr <- tensorflow::tf$cast(y_tr, dtype = tensorflow::tf$float32)
 
       model$fit(
-        x = X_tr,
+        x = x_tr,
         y = y_tr,
         epochs = as.integer(params$epochs),
         batch_size = as.integer(params$batch_size),
@@ -89,7 +85,7 @@ DL_UT <- function(x,y,hyp,xts=NULL,test=NULL){
         callbacks = list(callback_early_stopping(patience = 5, restore_best_weights = TRUE))
       )
 
-      y_p <- as.vector(model$predict(X_ts))
+      y_p <- as.vector(model$predict(x_ts))
       y_p <- y_p * SD_trn + Mean_trn
       y_ts_denorm <- y_ts * SD_trn + Mean_trn
 
