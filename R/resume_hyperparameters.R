@@ -175,8 +175,8 @@ resume_hyperparameters <- function(results,reps,MT=NULL){
     rownames(r_concatenate)=1:10
   }
 
-  png(filename = "r_MTMEGPS.png")
-  print(plot_grid(p1,p2,p3,p4,p5,p6,p7))
+  png("r_MTMEGPS.png", width = 7, height = 7, units = "in", res = 700)
+    print(plot_grid(p1,p2,p3,p4,p5,p6,p7))
   dev.off()
   return(list(r_activations,r_optimizers,r_epochs,r_batchs,r_losses,r_metrics,r_loss_weights,r_concatenate))
 }
