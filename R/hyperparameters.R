@@ -1,0 +1,28 @@
+#' @export
+hyperparameters <- function(activations=NULL,optimizers=NULL,epochs=NULL,batchs=NULL,losses=NULL,metrics=NULL,loss_weights=NULL,repetitions=NULL){
+  if(is.null(activations)){
+    activations="relu"
+  }
+  if(is.null(optimizers)){
+    optimizers="Adam"
+  }
+  if(is.null(epochs)){
+    epochs=100
+  }
+  if(is.null(batchs)){
+    batchs=100
+  }
+  if(is.null(losses)){
+    losses="mean_squared_error"
+  }
+  if(is.null(metrics)){
+    metrics="mean_squared_error"
+  }
+  if(is.null(loss_weights)){
+    loss_weights=0.001
+  }
+  if(is.null(repetitions)){
+    repetitions=3
+  }
+  return(list(activations,optimizers,epochs,batchs,losses,metrics,loss_weights,repetitions))
+}
