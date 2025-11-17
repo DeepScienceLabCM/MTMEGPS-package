@@ -1,0 +1,118 @@
+---
+title: "Introduction to MTMEGPS"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to MTMEGPS}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Overview
+
+`MTMEGPS` is an R package designed for genomic and phenomic prediction using univariate (UTUE, UTME) and multivariate (MTUE, MTME) deep learning models.  
+It provides tools for preparing datasets, defining hyperparameters, and fitting models through the functions `DL_UT()` and `DL_MT()`.
+
+This vignette illustrates the basic workflow.
+
+# Installation
+
+```r
+# devtools::install_github("DeepScienceLabCM/MTMEGPS-package")
+library(MTMEGPS)
+
+# install Python dependencies
+MTMEGPS::install_mtmegps_dependencies()
+```
+
+# Included datasets
+
+The package includes two example datasets:
+
+```r
+data("Eucalyptus")
+data("Maize")
+
+head(Eucalyptus)
+head(Maize)
+```
+
+# Preparing the data
+
+Use `prepare_data()` to organize phenotypes, environments, traits, genotypes, and markers.
+
+```r
+prep <- prepare_data(
+  data = Maize,
+  trait = c("T1", "T2", "T3"),
+  env = "Env",
+  id = "ID"
+)
+```
+
+This produces a list containing:
+
+- `Y` = trait × environment response matrix  
+- `X` = marker matrix or covariates  
+- `id`, `trait`, `env` labels  
+
+# Univariate deep learning model (UTUE / UTME)
+
+```r
+fit_ut <- DL_UT(
+  y = prep$Y[,1],                
+  X = prep$X,
+  hyperparameters = hyperparameters()
+)
+
+fit_ut
+```
+
+# Multitrait / Multienvironment deep learning model (MTUE / MTME)
+
+```r
+fit_mt <- DL_MT(
+  Y = prep$Y,                    
+  X = prep$X,
+  hyperparameters = hyperparameters()
+)
+
+fit_mt
+```
+
+# Cross-validation example
+
+```r
+set.seed(123)
+ids_test <- sample(unique(prep$id), 10)
+
+Y_cv <- prep$Y
+Y_cv[prep$id %in% ids_test, ] <- NA
+
+fit_cv <- DL_MT(
+  Y = Y_cv,
+  X = prep$X,
+  hyperparameters = hyperparameters()
+)
+
+# predicted values
+pred <- fit_cv$pred
+```
+
+# Final remarks
+
+This vignette provides a minimal workflow for using MTMEGPS for uni- and multi-environment deep learning prediction.  
+For more details, consult:
+
+```r
+?DL_UT
+?DL_MT
+?prepare_data
+?hyperparameters
+```
