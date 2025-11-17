@@ -77,8 +77,8 @@ DL_UT <- function(x,y,hyp,xts=NULL,test=NULL){
         loss_weights = as.numeric(loss_weights)
       )
 
-      X_tr <- keras3::k_cast_to_floatx(X_tr)
-      y_tr <- keras3::k_cast_to_floatx(y_tr)
+      X_tr <- tensorflow::tf$cast(X_tr, dtype = tensorflow::tf$float32)
+      y_tr <- tensorflow::tf$cast(y_tr, dtype = tensorflow::tf$float32)
 
       model$fit(
         x = X_tr,
@@ -163,8 +163,8 @@ DL_UT <- function(x,y,hyp,xts=NULL,test=NULL){
       loss_weights = as.numeric(loss_weights)
     )
 
-    X_tr <- keras3::k_cast_to_floatx(X_tr)
-    y_tr <- keras3::k_cast_to_floatx(y_tr)
+    X_tr <- tensorflow::tf$cast(X_tr, dtype = tensorflow::tf$float32)
+    y_tr <- tensorflow::tf$cast(y_tr, dtype = tensorflow::tf$float32)
 
     model$fit(
       x = X_tr,

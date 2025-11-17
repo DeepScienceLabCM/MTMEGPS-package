@@ -94,7 +94,7 @@ DL_MT <- function(x,y,hyp,xts=NULL,test=NULL){
           loss_weights = loss_weights_ls
       )
       
-      X_tr <- keras3::k_cast_to_floatx(X_tr)
+      X_tr <- tensorflow::tf$cast(X_tr, dtype = tensorflow::tf$float32)
       
       model$fit(
         x = X_tr,
@@ -198,7 +198,7 @@ DL_MT <- function(x,y,hyp,xts=NULL,test=NULL){
                     loss_weights = loss_weights_ls
       )
       
-      X_tr <- keras3::k_cast_to_floatx(X_tr)
+      X_tr <- tensorflow::tf$cast(X_tr, dtype = tensorflow::tf$float32)
       
       model$fit(
         x = X_tr,
