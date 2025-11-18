@@ -6,7 +6,8 @@ DL_UT <- function(xtr,xts=NULL,ytr,yts=NULL,hyp,test=NULL){
   library(dplyr)
   library(future.apply)
   if(is.null(test)){
-
+    x_tr=xtr
+    x_ts=xts
     param_grid <- expand.grid(
       activation = hyp[[1]],
       optimizer = hyp[[2]],
@@ -125,15 +126,15 @@ DL_UT <- function(xtr,xts=NULL,ytr,yts=NULL,hyp,test=NULL){
     repetitions = c(1:hyp[[8]])
     stringsAsFactors = FALSE
 
-    units <- as.integer(round(ncol(x) * 0.7))
+    units <- as.integer(round(ncol(xtr) * 0.7))
 
-    X_tr <- x
+    X_tr <- xtr
     X_ts <- xts
 
-    Mean_trn=mean(y,na.rm=T)
-    SD_trn=sd(y,na.rm=T)
+    Mean_trn=mean(ytr,na.rm=T)
+    SD_trn=sd(ytr,na.rm=T)
 
-    y_tr <- (y - Mean_trn) / SD_trn
+    y_tr <- (ytr - Mean_trn) / SD_trn
 
     input <- layer_input(shape = ncol(X_tr))
 

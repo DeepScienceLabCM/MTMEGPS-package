@@ -1,12 +1,13 @@
 #' @export
-DL_MT <- function(x,y,hyp,xts=NULL,test=NULL){
+DL_MT <- function(xtr,xts=NULL,ytr,yts=NULL,hyp,test=NULL){
   options(warn=-1)
   library(tensorflow)
   library(keras3)
   library(dplyr)
   library(future.apply)
   if(is.null(test)){
-    
+    x_tr=xtr
+    x_ts=xts
     param_grid <- expand.grid(
       activation = hyp[[1]],
       optimizer = hyp[[2]],
@@ -44,22 +45,18 @@ DL_MT <- function(x,y,hyp,xts=NULL,test=NULL){
       
       units <- as.integer(round(ncol(x) * 0.7))
       
-      Post_trn <- sample(1:nrow(x), round(nrow(x) * 0.8))
-      X_tr <- x[Post_trn, ]
-      X_ts <- x[-Post_trn, ]
+      Mean_trn=apply(ytr,2,mean)
+      SD_trn=apply(ytr,2,sd)
       
-      Mean_trn=apply(y[Post_trn,],2,mean)
-      SD_trn=apply(y[Post_trn,],2,sd)
+      y_tr=matrix(NA,ncol=dim(ytr)[2],nrow=dim(x_tr)[1])
+      y_ts=matrix(NA,ncol=dim(yts)[2],nrow=dim(x_ts)[1])
       
-      y_tr=matrix(NA,ncol=dim(y)[2],nrow=dim(X_tr)[1])
-      y_ts=matrix(NA,ncol=dim(y)[2],nrow=dim(X_ts)[1])
-      
-      for (t in 1:dim(y)[2]){
-        y_tr[,t] =(y[Post_trn,t]- Mean_trn[t])/SD_trn[t]
-        y_ts[,t] =(y[-Post_trn,t]- Mean_trn[t])/SD_trn[t]
+      for (t in 1:dim(ytr)[2]){
+        y_tr[,t] =(ytr[,t]- Mean_trn[t])/SD_trn[t]
+        y_ts[,t] =(yts[,t]- Mean_trn[t])/SD_trn[t]
       }
 
-      input <- layer_input(shape = ncol(X_tr))
+      input <- layer_input(shape = ncol(x_tr))
       
       base_model <- input %>%
         layer_dense(units = units, activation = activation) %>%
@@ -74,7 +71,7 @@ DL_MT <- function(x,y,hyp,xts=NULL,test=NULL){
       yhat=NULL
       loss_weights2=NULL
       y_tr2=NULL
-      for(out_n in 1:dim(y)[2]){
+      for(out_n in 1:dim(ytr)[2]){
         yh <- base_model %>%
           layer_dense(units = 1, name=paste("yhat",out_n,sep=""))
         yhat=append(yhat,yh)
@@ -94,10 +91,10 @@ DL_MT <- function(x,y,hyp,xts=NULL,test=NULL){
           loss_weights = loss_weights_ls
       )
       
-      X_tr <- tensorflow::tf$cast(X_tr, dtype = tensorflow::tf$float32)
+      x_tr <- tensorflow::tf$cast(x_tr, dtype = tensorflow::tf$float32)
       
       model$fit(
-        x = X_tr,
+        x = x_tr,
         y = y_tr2,
         epochs = as.integer(params$epochs),
         batch_size = as.integer(params$batch_size),
@@ -106,7 +103,7 @@ DL_MT <- function(x,y,hyp,xts=NULL,test=NULL){
         callbacks = list(callback_early_stopping(patience = 5, restore_best_weights = TRUE))
       )
 
-      y_p <- model$predict(X_ts)
+      y_p <- model$predict(x_ts)
       y_p <- do.call(cbind, lapply(y_p, as.numeric))
       
       for (out_n in seq_len(ncol(y_p))) {
@@ -149,18 +146,18 @@ DL_MT <- function(x,y,hyp,xts=NULL,test=NULL){
     repetitions = c(1:hyp[[8]])
     stringsAsFactors = FALSE
     
-    units <- as.integer(round(ncol(x) * 0.7))
+    units <- as.integer(round(ncol(xtr) * 0.7))
       
-    X_tr <- x
+    X_tr <- xtr
     X_ts <- xts
       
-    Mean_trn=apply(y,2,mean)
-    SD_trn=apply(y,2,sd)
+    Mean_trn=apply(ytr,2,mean)
+    SD_trn=apply(ytr,2,sd)
       
-    y_tr=matrix(NA,ncol=dim(y)[2],nrow=dim(X_tr)[1])
+    y_tr=matrix(NA,ncol=dim(ytr)[2],nrow=dim(X_tr)[1])
       
-    for (t in 1:dim(y)[2]){
-      y_tr[,t] =(y[,t]- Mean_trn[t])/SD_trn[t]
+    for (t in 1:dim(ytr)[2]){
+      y_tr[,t] =(ytr[,t]- Mean_trn[t])/SD_trn[t]
     }
     
     input <- layer_input(shape = ncol(X_tr))
@@ -178,7 +175,7 @@ DL_MT <- function(x,y,hyp,xts=NULL,test=NULL){
       yhat=NULL
       loss_weights2=NULL
       y_tr2=NULL
-      for(out_n in 1:dim(y)[2]){
+      for(out_n in 1:dim(ytr)[2]){
         yh <- base_model %>%
           layer_dense(units = 1, name=paste("yhat",out_n,sep=""))
         yhat=append(yhat,yh)
