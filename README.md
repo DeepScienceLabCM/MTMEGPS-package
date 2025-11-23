@@ -23,7 +23,7 @@ devtools::install_github("DeepScienceLabCM/MTMEGPS-package")
 MTMEGPS requires a working Python installation (version 3.9–3.11).  
 Before using the package. Recommended version: **Python 3.10**
 If you plan to install Python through `reticulate::install_python()`,
-Git must be installed first. Download Git here:\ 
+Git must be installed first. Download Git here:\
 https://git-scm.com/downloads
 
 ```r
