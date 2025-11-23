@@ -7,6 +7,10 @@ It provides functions for Uni-Trait (UT), Multi-Trait (MT), Uni-Environment (UE)
 
 ## Installation
 
+If you're using Windows, you must install **RTools** before installing
+**DevTools**, since many R packages need compilation tools. Download RTools here:\
+https://cran.r-project.org/bin/windows/Rtools/
+
 ```r
 install.packages("devtools")
 devtools::install_github("DeepScienceLabCM/MTMEGPS-package")
@@ -17,7 +21,10 @@ devtools::install_github("DeepScienceLabCM/MTMEGPS-package")
 ## Python Requirements
 
 MTMEGPS requires a working Python installation (version 3.9–3.11).  
-Before using the package, install Python with:
+Before using the package. Recommended version: **Python 3.10**
+If you plan to install Python through `reticulate::install_python()`,
+Git must be installed first. Download Git here:\ 
+https://git-scm.com/downloads
 
 ```r
 reticulate::install_python(version = "3.10")
